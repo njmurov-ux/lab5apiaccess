@@ -33,9 +33,9 @@ install.packages(c("png", "httr"))
 You can either supply the API key manually or read it from a pre-saved file as shown below:
 
 ```{r}
-path = "~/.stadia_maps" # Use the file location on your machine
-key <- read_stadia_api_key_from_file(path)
-set_stadia_api_key(key)
+# path = "<your_key_file>" # Use the file location on your machine
+# key <- read_stadia_api_key_from_file(path)
+# set_stadia_api_key(key)
 ```
 
 ## Using stadia_get_tile

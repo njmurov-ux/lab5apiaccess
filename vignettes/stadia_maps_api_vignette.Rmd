@@ -1,0 +1,93 @@
+---
+title: "stadia_maps_api_vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{stadia_maps_api_vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(lab5apiaccess)
+```
+
+This vignette demonstrates how to use the functions defined in the `lab5apiaccess` package to retrieve and plot map tiles from the Stadia Maps API.
+
+## Prerequisites
+
+Before you begin, ensure you have the necessary packages installed. You can install them using the following code:
+
+```{r, eval=FALSE}
+install.packages(c("png", "httr"))
+```
+
+## Set Stadia Maps API key
+
+You can either supply the API key manually or read it from a pre-saved file as shown below:
+
+```{r}
+path = "~/.stadia_maps" # Use the file location on your machine
+key <- read_stadia_api_key_from_file(path)
+set_stadia_api_key(key)
+```
+
+## Using stadia_get_tile
+The `stadia_get_tile` function retrieves a map tile from the Stadia Maps API based on the zoom level (z), x-coordinate (x), and y-coordinate (y).
+
+## Retrieving and Plotting a Tile
+The following code retrieves a tile and plots it:
+
+
+```{r}
+# Replace with your desired tile coordinates
+zoom_level <- 12
+x_coord <- 654
+y_coord <- 1577
+# Retrieve the tile
+tile_data <- tryCatch({
+  stadia_get_tile(z = zoom_level, x = x_coord, y = y_coord)
+}, error = function(e) {
+  message("Error retrieving tile: ", e$message)
+  return(NULL)
+})
+
+# Plot the tile (if retrieval was successful)
+if (!is.null(tile_data)) {
+  # Assuming tile_data is a matrix (PNG image)
+  plot(1, type = "n", xlim = c(0, ncol(tile_data)), ylim = c(0, nrow(tile_data)),
+       xlab = "", ylab = "", axes = FALSE, main = paste("Stadia Tile (",zoom_level,",",x_coord,",",y_coord,")"))
+  rasterImage(tile_data, 0, 0, ncol(tile_data), nrow(tile_data))
+
+  # Alternatively, if you want to use plot_image_from_httr, you would need a URL:
+  # image_url <- sprintf("%s/tiles/outdoors/%d/%d/%d.png?api_key=%s", stadia_base_url(), zoom_level, x_coord, y_coord, get_stadia_api_key())
+  # plot_image_from_httr(image_url)
+
+}
+```
+
+
+## Saving the Tile to a File
+You can also save the retrieved tile to a file using the file argument:
+
+```{r}
+# Replace with your desired file path
+output_file <- "tile.png"
+
+# Retrieve and save the tile
+stadia_get_tile(z = zoom_level, x = x_coord, y = y_coord, file = output_file)
+
+# Verify that the file was created
+file.exists(output_file)
+```
+
+## Troubleshooting
+- API Key: Ensure that your Stadia Maps API key is correctly configured using the get_stadia_api_key function.
+- Network Connection: Verify that you have a working internet connection.
+- Error Messages: Pay attention to any error messages that are displayed, and consult the Stadia Maps API documentation for more information.
